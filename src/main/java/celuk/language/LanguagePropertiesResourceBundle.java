@@ -179,7 +179,7 @@ public abstract class LanguagePropertiesResourceBundle extends ResourceBundle
                     }
                     catch (Exception ex)
                     {
-                        System.out.println("Failed to load messages from \"" + resourcePath + "\" - \"" + prefix + baseName + "\"");
+                        //System.out.println("Failed to load messages from \"" + resourcePath + "\" - \"" + prefix + baseName + "\"");
                     }
                 }
             }
