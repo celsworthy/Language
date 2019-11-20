@@ -7,17 +7,27 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 
 public abstract class LanguagePropertiesResourceBundle extends ResourceBundle
 {
+    private static List<String> subDirectoryListToSearch;
+    private static List<String> bundlePrefixList;
+    static {
+        subDirectoryListToSearch = new ArrayList<>();
+        subDirectoryListToSearch.add(".");
+        bundlePrefixList = new ArrayList<>();
+        bundlePrefixList.add("");
+    }
+    
     /**
      * The base name for the ResourceBundles to load in.
      */
@@ -41,6 +51,18 @@ public abstract class LanguagePropertiesResourceBundle extends ResourceBundle
     private Map<String, Object> combined;
     
     private final Set<Locale> availableLocales = new HashSet<>();
+
+    protected static void addBundlePrefix(String prefix)
+    {
+        if (!bundlePrefixList.contains(prefix))
+            bundlePrefixList.add(prefix);
+    }
+
+    protected static void addSubDirectoryToSearch(String subDirectory)
+    {
+        if (!subDirectoryListToSearch.contains(subDirectory))
+            subDirectoryListToSearch.add(subDirectory);
+    }
 
     /**
      * Construct a <code>MultiplePropertiesResourceBundle</code> for the passed
@@ -146,11 +168,21 @@ public abstract class LanguagePropertiesResourceBundle extends ResourceBundle
     {
         if (combined == null)
         {
-            combined = new HashMap<String, Object>(128);
-            
-            Path specifiedResourcePath = baseDirectory.resolve(languageFolderName);
-            
-            addBundleData(specifiedResourcePath, baseName);
+            combined = new HashMap<>(128);
+            for (String subDirectory : subDirectoryListToSearch)
+            {
+                Path resourcePath = baseDirectory.resolve(subDirectory).resolve(languageFolderName);
+                for (String prefix : bundlePrefixList)
+                {
+                    try {
+                        addBundleData(resourcePath, prefix + baseName);
+                    }
+                    catch (Exception ex)
+                    {
+                        System.out.println("Failed to load messages from \"" + resourcePath + "\" - \"" + prefix + baseName + "\"");
+                    }
+                }
+            }
         }
     }
     

@@ -8,6 +8,7 @@ package celuk.language;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,9 +17,19 @@ import java.util.regex.Pattern;
  * @author Tony
  */
 public class I18n {
-    private static ResourceBundle i18nbundle = null;
+    private static LanguagePropertiesResourceBundle i18nbundle = null;
     private static Locale applicationLocale = null;
     private static String applicationInstallDirectory = null;
+
+    public static void addBundlePrefix(String prefix)
+    {
+        LanguagePropertiesResourceBundle.addBundlePrefix(prefix);
+    }
+
+    public static void addSubDirectoryToSearch(String subDirectory)
+    {
+        LanguagePropertiesResourceBundle.addSubDirectoryToSearch(subDirectory);
+    }
 
     public static ResourceBundle getLanguageBundle()
     {
@@ -127,7 +138,7 @@ public class I18n {
         i18nbundle = null;
         try
         {
-            i18nbundle = ResourceBundle.getBundle("celuk.language.languagedata.LanguageData", applicationLocale);
+            i18nbundle = (LanguagePropertiesResourceBundle)ResourceBundle.getBundle("celuk.language.languagedata.LanguageData", applicationLocale);
         }
         catch (Exception ex)
         {
@@ -137,7 +148,15 @@ public class I18n {
         if (i18nbundle == null)
         {
             applicationLocale = Locale.ENGLISH;
-            i18nbundle = ResourceBundle.getBundle("celuk.language.languagedata.LanguageData", applicationLocale);
+            i18nbundle = (LanguagePropertiesResourceBundle)ResourceBundle.getBundle("celuk.language.languagedata.LanguageData", applicationLocale);
         }
+    }
+    
+    public static Set<Locale> getAvailableLocales()
+    {
+        if (i18nbundle != null)
+            return i18nbundle.getAvailableLocales();
+        else
+            return null;
     }
 }
