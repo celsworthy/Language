@@ -182,14 +182,15 @@ public abstract class LanguagePropertiesResourceBundle extends ResourceBundle
                         //System.out.println("Failed to load messages from \"" + resourcePath + "\" - \"" + prefix + baseName + "\"");
                     }
                 }
+                addAvailableLocales(resourcePath);
             }
         }
     }
     
-    private void addAvailableLocales(String resourcePath)
+    private void addAvailableLocales(Path resourcePath)
     {
         
-        File commonDir = new File(resourcePath);
+        File commonDir =  resourcePath.toFile();
         
         availableLocales.add(Locale.ENGLISH);
         
@@ -199,22 +200,27 @@ public abstract class LanguagePropertiesResourceBundle extends ResourceBundle
         {
             for (String filename : filenamesToIngest)
             {
-                filename = filename.replaceFirst(".properties", "");
-                
-                Locale locale = null;
-                
-                String[] languageStringParts = filename.split("_");
-                
-                switch (languageStringParts.length)
+                filename = filename.toUpperCase().replaceFirst(".PROPERTIES", "");
+                // Segment after LanguageData is the locale
+                String[] nameParts = filename.split("LANGUAGEDATA_");
+                if (nameParts.length > 1)
                 {
-                    case 2:
-                        locale = new Locale(languageStringParts[1]);
-                        availableLocales.add(locale);
-                        break;
-                    case 3:
-                        locale = new Locale(languageStringParts[1], languageStringParts[2]);
-                        availableLocales.add(locale);
-                        break;
+                    Locale locale = null;
+                    String[] languageStringParts = nameParts[1].split("_");
+                
+                    switch (languageStringParts.length)
+                    {
+                        case 1:
+                            locale = new Locale(languageStringParts[0]);
+                            availableLocales.add(locale);
+                            break;
+                        case 2:
+                            locale = new Locale(languageStringParts[0], languageStringParts[1]);
+                            availableLocales.add(locale);
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
         }
